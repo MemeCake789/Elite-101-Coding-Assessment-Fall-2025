@@ -1,0 +1,32 @@
+LEVEL 1:
+
+> create a function called viewAvailable() that returns a list of the available books
+> A book is available when the "available" value is True.
+> use a for each loop to cycle thru list and check the available value, and add the book to a avalible list and return that list at the end.
+
+LEVEL 2:
+
+> create a function called search with a "query" param and books param
+> create results list
+> loop over each book and check if the query matches the author or genre value
+> use a string clean function to remove spaces and convert to lowercase, use on both query & author & genre
+
+LEVEL 3:
+
+> create checkout function that takes in a id param.
+> check if the book is available, if not return an error message
+> use date time to set due date to current date + 14 days
+> if available, set the available value to False and return a success message
+
+LEVEL 4
+
+return book( book id )
+> get the book with get_book_by_id
+> set available to True and clear the due_date
+> return the updated book
+
+list_overdue ( books )
+> for each book in the list:
+> if the book is not avalible and the due date is greater than todays date (datetime.now())
+> add the book to a list of overdue books
+> return the list of overdue books
