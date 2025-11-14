@@ -36,17 +36,17 @@ class Book:
             print(f"Book '{self.title}' is currently unavailable.")
             return False
 
-    def return_book(self) -> bool:
+    def returnBook(self) -> bool:
         """
         Returns the book, sets it as available, and clears the due date.
         """
         if not self.available:
             self.available = True
             self.due_date = None
-            print(f"'{self.title}' has been returned.")
+            print(f"Book '{self.title}' has been returned.")
             return True
         else:
-            print(f"'{self.title}' is already available.")
+            print(f"Book '{self.title}' was already available.")
             return False
 
 
@@ -55,22 +55,36 @@ booksList = [Book(book_data) for book_data in library_books]
 
 
 # helper functions
-def clean_string(string: str) -> str:
+def cleanString(string: str) -> str:
     """
     simplifies a string to a no-space, lowercase word.
     EX: "Hello World" -> "helloworld"
     """
-    return string.replace(" ", "").lower()
+    # return string.replace(" ", "").lower()
+    return string.strip().lower()
+    # TODO : use trim instead of replace for clean function
 
 
-def get_book_by_id(id: str, books: list) -> list:
+def getBookById(id: str, books: list) -> list:
     """
     Returns a list containing the book with the matching id, or an empty list if not found.
     """
     for book in books:
-        if book.id == id:
+        if book.id == cleanString(id):
             return [book]
     return []
+
+
+def dateToDatetime(due_date):
+    """
+    Converts a due_date to a datetime object if it's a string, otherwise returns it as is.
+    """
+    if isinstance(due_date, str):
+        try:
+            return datetime.strptime(due_date, "%Y-%m-%d")
+        except ValueError:
+            return None  # Or handle this error as appropriate for your application
+    return due_date
 
 
 # -------- Level 1 --------
@@ -97,7 +111,7 @@ def printAvailable(books: list):
     availableBooks = viewAvailable(books)
 
     if not availableBooks:
-        print("No books available.")
+        print("No books currently available.")
         return
 
     for book in availableBooks:
@@ -115,9 +129,9 @@ def searchBook(query: str, books: list) -> list:
     search_results = []
 
     for book in books:
-        bookAuthor = clean_string(book.author)
-        bookGenre = clean_string(book.genre)
-        if bookAuthor == clean_string(query) or bookGenre == clean_string(query):
+        bookAuthor = cleanString(book.author)
+        bookGenre = cleanString(book.genre)
+        if bookAuthor == cleanString(query) or bookGenre == cleanString(query):
             search_results.append(book)
 
     return search_results
@@ -126,61 +140,62 @@ def searchBook(query: str, books: list) -> list:
 # -------- Level 3 --------
 
 
-def checkout_book(id: str) -> list:
+def checkoutBook(id: str) -> list:
     """
     Checks out a book by ID using the Book object's checkout method.
     """
-    bookList = get_book_by_id(id, booksList)
+    bookList = getBookById(id, booksList)
     if not bookList:
         print(f"Book with ID {id} not found.")
         return []
 
     book = bookList[0]
-    book.checkout()  # Use the Book class method
+    book.checkout()
     return bookList
 
 
 # -------- Level 4 --------
-def return_book(id: str) -> list:
+def returnBook(id: str) -> list:
     """
-    Returns a book by ID using the Book object's return_book method.
+    Returns a book by ID using the Book object's returnBook method.
     """
-    bookList = get_book_by_id(id, booksList)
+    bookList = getBookById(id, booksList)
     if not bookList:
         print(f"Book with ID {id} not found.")
         return []
 
     book = bookList[0]
-    book.return_book()  # Use the Book class method
+    book.returnBook()
     return bookList
 
 
-def list_overdue(books: list) -> list:
+def listOverdue(books: list) -> list:
     """
     Returns a list of books that are checked out and past their due date.
     """
     overdueBooks = []
     for book in books:
         # Check if the book is unavailable (checked out), has a due date, and that date is in the past
-        if not book.available and book.due_date and book.due_date < datetime.now():
+        if not book.available and book.due_date:
+            book.due_date = dateToDatetime(book.due_date)
             overdueBooks.append(book)
     return overdueBooks
 
 
-def display_menu():
-    print("\n--- Library ---")
+def displayMenu():
+    print("--- Library ---")
     print("1. View Available Books")
     print("2. Search for a Book")
     print("3. Check Out a Book")
     print("4. Return a Book")
     print("5. List Overdue Books")
     print("6. Exit")
-    print("---")
+    print("--------------------")
 
 
-def main_menu():
+def main():
     while True:
-        display_menu()
+        displayMenu()
         choice = input("Enter choice: ")
 
         match choice:
@@ -189,7 +204,7 @@ def main_menu():
                 printAvailable(booksList)
 
             case "2":
-                query = input("Enter author or genre to search: ")
+                query = cleanString(input("Enter author or genre to search: "))
                 results = searchBook(query, booksList)
                 if results:
                     print("\n--- Search Results ---")
@@ -200,13 +215,13 @@ def main_menu():
                 else:
                     print(f"No books found matching '{query}'.")
             case "3":
-                book_id = input("Enter book id to check out: ")
-                checkout_book(book_id)
+                book_id = cleanString(input("Enter book id to check out: "))
+                checkoutBook(book_id)
             case "4":
-                book_id = input("Enter book id to return: ")
-                return_book(book_id)
+                book_id = cleanString(input("Enter book id to return: "))
+                returnBook(book_id)
             case "5":
-                overdue = list_overdue(booksList)
+                overdue = listOverdue(booksList)
                 if overdue:
                     print("\n--- Overdue Books ---")
                     for book in overdue:
@@ -223,4 +238,4 @@ def main_menu():
 
 
 if __name__ == "__main__":
-    main_menu()
+    main()
